@@ -423,12 +423,13 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
     private void releaseHoldCmd() {
         mResumeHandler.removeCallbacks(mResumeHoldRunnable);
         if ((System.currentTimeMillis() - mLastHoldRelease) < 5000) {
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException ignored) {
-            }
-
+            mResumeHandler.postDelayed(this::releaseHoldCmdBody, 3000);
+            return;
         }
+        releaseHoldCmdBody();
+    }
+
+    private void releaseHoldCmdBody() {
         mWaitingForRelease = false;
         mLastHoldRelease = System.currentTimeMillis();
         managmentCommand("hold release\n");
